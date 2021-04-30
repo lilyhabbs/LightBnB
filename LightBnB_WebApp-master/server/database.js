@@ -67,10 +67,12 @@ exports.addUser = addUser;
 const getAllReservations = function(guestId, limit = 10) {
   return db
     .query(`
-      SELECT *
+      SELECT reservations.*, properties.*, AVG(property_reviews.rating) as average_rating
       FROM reservations
       JOIN properties ON properties.id = reservations.property_id
-      WHERE guest_id = $1
+      JOIN property_reviews ON property_reviews.property_id = properties.id
+      WHERE reservations.guest_id = $1
+      GROUP by reservations.id, properties.id
       LIMIT $2;
     `, [guestId, limit])
     .then((res) => res.rows)
